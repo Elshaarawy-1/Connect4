@@ -39,6 +39,6 @@ int score_calculator(Configuration config, int board[config.height][config.width
 /// @param played_move the move played where played_move.column is the column at which the move is played. 
 /// Gets updated with the move row if the move is valid.
 /// @return MOVE_VALID, MOVE_ENDING,MOVE_INVALID_COLUMN_FULL, MOVE_INVALID_OUT_OF_BOUNDS
-int play_move(int col,Configuration config, int board[][col], Player *player, Move *played_move);
+int play_move(Configuration config, int board[config.height][config.width], Player *player, Move *played_move);
 
 #endif
