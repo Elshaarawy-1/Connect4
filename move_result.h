@@ -13,12 +13,13 @@ typedef struct s_move
 {
     int row;
     int column;
+    int total_moves;
 } Move;
 
 
-/// @param config configuration containing board width and height
 /// @brief validates the move played by checking if it is within the board boundries and if the column is full.
 /// If the move is valid, change the played_move.row to the lowest valid row for the token
+/// @param config configuration containing board width and height
 /// @param board the array representing the last board state.
 /// @param played_move the move played where played_move.col is the column at which the move is played.
 /// If the move is valid the played_move.row is the lowest valid row for the token
