@@ -76,12 +76,64 @@ int column_score(Configuration config, int board[][config.width], int player_id,
     return score;
 }
 
+int lower_diagonal_score(Configuration config, int board[][config.width], int player_id, Move played_move)
+{
+    int score = 0;
+    for (int i = 0; i < 4 ; i++)
+    {
+        int counter = i - 1;
+        for (int j = played_move.column -3 + i; j <= played_move.column + i; j++)
+        {
+            counter++;
+            if (j < 0 || j > config.width-1)
+            {
+                break;
+            }
+            else if (board[played_move.row + 3 - counter][j] != player_id)
+            {
+                break;
+            }
+            else if (j == played_move.column + i)
+            {
+                score++;
+            }
+        }
+    }
+    return score;
+}
+int upper_diagonal_score(Configuration config, int board[][config.width], int player_id, Move played_move)
+{
+    int score = 0;
+    for (int i = 0; i < 4 ; i++)
+    {
+        int counter = i - 1;
+        for (int j = played_move.column -3 + i; j <= played_move.column + i; j++)
+        {
+            counter++;
+            if (j < 0 || j > config.width-1)
+            {
+                break;
+            }
+            else if (board[played_move.row - 3 + counter][j] != player_id)
+            {
+                break;
+            }
+            else if (j == played_move.column + i)
+            {
+                score++;
+            }
+        }
+    }
+    return score;
+}
+
 int score_calculator(Configuration config, int board[][config.width], int player_id, Move played_move)
 {
     int score = 0;
     score += row_score(config, board, player_id, played_move);
     score += column_score(config, board, player_id, played_move);
-
+    score += lower_diagonal_score(config, board, player_id, played_move);
+    score += upper_diagonal_score(config, board, player_id, played_move);
     return score;
 }
 
