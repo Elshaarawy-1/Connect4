@@ -46,9 +46,91 @@ void print_menu(Menu *menu)
     }
 }
 
-void print_board()
+void print_token(int token)
 {
-    // TODO
+    switch (token)
+    {
+    case 1:
+        printf(" ● ");
+        return;
+    case 2:
+        printf(" ○ ");
+        return;
+    default:
+        printf("   ");
+        return;
+    }
+}
+
+void print_board(Configuration config, int board[][config.width])
+{
+    int frame_width = config.width * 2 + 1;
+    int frame_height = config.height * 2 + 1;
+    for (int i = 0; i < frame_height; i++)
+    {
+        bool at_top = i == 0;
+        bool at_bottom = i == frame_height - 1;
+        bool at_horizontal_border = i % 2 == 0; // if at an even row, then a border should be printed
+
+        for (int j = 0; j < frame_width; j++)
+        {
+            bool at_left = j == 0;
+            bool at_right = j == frame_width - 1;
+            bool at_vertical_border = j % 2 == 0; // if at an even column, then a border should be printed
+
+            if (at_top)
+            {
+                if (at_left)
+                    printf(TOP_LEFT_CORNER);
+                else if (at_right)
+                    printf(TOP_RIGHT_CORNER);
+                else if (at_vertical_border)
+                    printf(TOP_HORIZONTAL_LINE);
+                else
+                    printf(HORIZONTAL_LINE);
+            }
+            else if (at_bottom)
+            {
+                if (at_left)
+                    printf(BOTTOM_LEFT_CORNER);
+                else if (at_right)
+                    printf(BOTTOM_RIGHT_CORNER);
+                else if (at_vertical_border)
+                    printf(BOTTOM_HORIZONTAL_LINE);
+                else
+                    printf(HORIZONTAL_LINE);
+            }
+            else
+            {
+                if (at_left)
+                {
+                    if (at_horizontal_border)
+                        printf(LEFT_VERTICAL_LINE);
+                    else
+                        printf(VERTICAL_LINE);
+                }
+                else if (at_right)
+                {
+                    if (at_horizontal_border)
+                        printf(RIGHT_VERTICAL_LINE);
+                    else
+                        printf(VERTICAL_LINE);
+                }
+                else
+                {
+                    if (at_horizontal_border && at_vertical_border)
+                        printf(INTERSECTION);
+                    else if (at_horizontal_border && !at_vertical_border)
+                        printf(HORIZONTAL_LINE);
+                    else if (!at_horizontal_border && at_vertical_border)
+                        printf(VERTICAL_LINE);
+                    else
+                        print_token(board[(i - 1) / 2][(j - 1) / 2]);
+                }
+            }
+        }
+        printf("\n");
+    }
 }
 
 void print_turn(Player *player)

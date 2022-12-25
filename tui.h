@@ -5,6 +5,20 @@
 #include "timer.h"
 #include "menu.h"
 #include "player.h"
+#include "configuration.h"
+
+#define INTERSECTION "╬"
+#define HORIZONTAL_LINE "═══"
+#define VERTICAL_LINE "║"
+#define LEFT_VERTICAL_LINE "╠"
+#define RIGHT_VERTICAL_LINE "╣"
+#define TOP_HORIZONTAL_LINE "╦"
+#define BOTTOM_HORIZONTAL_LINE "╩"
+#define TOP_LEFT_CORNER "╔"
+#define BOTTOM_LEFT_CORNER "╚"
+#define TOP_RIGHT_CORNER "╗"
+#define BOTTOM_RIGHT_CORNER "╝"
+
 
 /// @brief prints a Menu struct to stdin
 /// @param menu Menu to be printed
@@ -24,8 +38,9 @@ bool read_int(char *prompt_message, int *answer);
 /// @return the number representing the option that the user selected (between 0 and menu.number_of_options)
 int read_selected_option(Menu *menu, char *prompt_message);
 
+void print_token(int token);
 
-void print_board();
+void print_board(Configuration config, int board[][config.width]);
 
 /// @brief Print which player's turn it is
 /// @param player the player whose turn it is

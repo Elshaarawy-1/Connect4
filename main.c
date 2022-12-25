@@ -8,7 +8,7 @@
 
 void new_game_menu();
 void view_main_menu();
-
+void load_game();
 
 
 int main()
@@ -33,12 +33,17 @@ void new_game_menu(){
 
     int selected_option = read_selected_option(new_game_menu, "The index of option you want to select (between 1 and 5) : ");
 
+    //
+
 
     free(new_game_menu->options);
     free(new_game_menu);
     
     switch (selected_option)
     {
+        case 1:
+        load_game();
+        break;
     case 4:
         view_main_menu();
         break;
@@ -78,3 +83,17 @@ void view_main_menu()
     }
 
 }
+void load_game(){
+    int board[][5] = {{0, 0, 0, 0, 0},
+                      {0, 0, 0, 0, 0},
+                      {1, 2, 0, 0, 0},
+                      {2, 1, 0, 0, 0},
+                      {2, 2, 1, 0, 2},
+                      {1, 2, 1, 0, 1}};
+
+    Configuration config ={5,6};
+    print_board(config, board);
+}
+
+
+
