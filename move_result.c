@@ -13,7 +13,6 @@ int validate_move(Configuration config, int board[][config.width], Move *played_
             if (board[i][played_move->column] == 0)
             {
                 played_move->row = i;
-                played_move->total_moves ++;
                 if (played_move->total_moves == (config.height * config.width))
                 {
                     return MOVE_END;
@@ -144,9 +143,22 @@ int play_move(Configuration config, int board[][config.width], Player *player, M
     move_validity = validate_move(config, board, played_move);
     if (move_validity == MOVE_VALID || move_validity == MOVE_END)
     {
+        played_move->total_moves ++;
         board[played_move->row][played_move->column] = player->id;
         int score = score_calculator(config, board, player->id, *played_move);
         player->score += score;
     }
     return move_validity;
+}
+
+
+void unplay_move(Configuration config, int board[][config.width], Player *player, Move *played_move)
+{
+    int move_validity;
+    move_validity = validate_move(config, board, played_move);
+    played_move->row++; //We have to add 1 because validate move get the first valid row to play in
+    played_move->total_moves --;
+    int score = score_calculator(config, board, player->id, *played_move);
+    board[played_move->row][played_move->column] = 0;
+    player->score -= score;
 }
