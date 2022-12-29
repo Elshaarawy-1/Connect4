@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "tui.h"
-#include "color.c"
+#include "color.h"
 
 bool read_int(char *prompt_message, int *answer)
 {
