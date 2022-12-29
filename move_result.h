@@ -2,6 +2,7 @@
 #define MOVE_RESULT_H
 #include "configuration.h"
 #include "player.h"
+#include "game_state.h"
 
 #define MOVE_VALID 0                 // The move is a valid move
 #define MOVE_END 1                   // The move is the ending move
@@ -22,7 +23,7 @@ typedef struct s_move
 /// @param played_move the move played where played_move.col is the column at which the move is played.
 /// If the move is valid the played_move.row is the lowest valid row for the token
 /// @return MOVE_VALID, MOVE_END, MOVE_INVALID_COLUMN_FULL, MOVE_INVALID_OUT_OF_BOUNDS
-int validate_move(Configuration config, int *board, Move *played_move);
+int validate_move(GameState* game_state, Move *played_move);
 
 /// @brief Calculate the score that the played_move generates.
 /// @param config Configuration containing board width and height.
@@ -30,7 +31,7 @@ int validate_move(Configuration config, int *board, Move *played_move);
 /// @param played_move The move played to calculate score for. The move isn't checked for validity.
 /// @param player_id The id of the player who played the move.
 /// @return The total score in which that move lead to it.
-int score_calculator(Configuration config, int *board, int player_id, Move played_move);
+int score_calculator(GameState *game_state, int player_id, Move played_move);
 
 /// @brief Check the move if it is valid, play it and update the player score
 /// @param config Configuration containing board width and height
@@ -39,17 +40,17 @@ int score_calculator(Configuration config, int *board, int player_id, Move playe
 /// @param played_move the move played where played_move.column is the column at which the move is played.
 /// Gets updated with the move row if the move is valid.
 /// @return MOVE_VALID, MOVE_ENDING,MOVE_INVALID_COLUMN_FULL, MOVE_INVALID_OUT_OF_BOUNDS
-int play_move(Configuration config, int *board, Player *player, Move *played_move);
+int play_move(GameState *game_state, Move *played_move);
 
-void unplay_move(Configuration config, int *board, Player *player, Move *played_move);
+void unplay_move(GameState *game_state, Move *played_move);
 
-int row_score(Configuration config, int *board, int player_id, Move played_move);
+int row_score(GameState* game_state, int player_id, Move played_move);
 
-int column_score(Configuration config, int *board, int player_id, Move played_move);
+int column_score(GameState* game_state, int player_id, Move played_move);
 
-int lower_diagonal_score(Configuration config, int *board, int player_id, Move played_move);
+int lower_diagonal_score(GameState* game_state, int player_id, Move played_move);
 
-int upper_diagonal_score(Configuration config, int *board, int player_id, Move played_move);
+int upper_diagonal_score(GameState* game_state, int player_id, Move played_move);
 
 void get_valid_columns(Configuration config, int *board, int valid_columns[], int * size);
 #endif

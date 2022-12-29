@@ -1,19 +1,19 @@
 #include "move_result.h"
 
-int validate_move(Configuration config, int *board, Move *played_move)
+int validate_move(GameState *game_state, Move *played_move)
 {
-    if (played_move->column < 0 || played_move->column > config.width - 1)
+    if (played_move->column < 0 || played_move->column > game_state->config->width - 1)
     {
         return MOVE_INVALID_OUT_OF_BOUNDS;
     }
     else
     {
-        for (int i = config.height - 1; i > -1; i--)
+        for (int i = game_state->config->height - 1; i > -1; i--)
         {
-            if (board[(i * config.width) + played_move->column] == 0)
+            if (game_state->board[(i * game_state->config->width) + played_move->column] == 0)
             {
                 played_move->row = i;
-                if (played_move->total_moves == (config.height * config.width))
+                if (game_state->total_moves+1 >= (game_state->config->height * game_state->config->width))
                 {
                     return MOVE_END;
                 }
@@ -27,18 +27,18 @@ int validate_move(Configuration config, int *board, Move *played_move)
     }
 }
 
-int row_score(Configuration config, int *board, int player_id, Move played_move)
+int row_score(GameState *game_state, int player_id, Move played_move)
 {
     int score = 0;
     for (int i = 0; i < 4; i++)
     {
         for (int j = played_move.column - 3 + i; j <= played_move.column + i; j++)
         {
-            if (j < 0 || j > config.width - 1)
+            if (j < 0 || j > game_state->config->width - 1)
             {
                 break;
             }
-            else if (board[(played_move.row * config.width) + j] != player_id)
+            else if (game_state->board[(played_move.row * game_state->config->width) + j] != player_id)
             {
                 break;
             }
@@ -51,18 +51,18 @@ int row_score(Configuration config, int *board, int player_id, Move played_move)
     return score;
 }
 
-int column_score(Configuration config, int *board, int player_id, Move played_move)
+int column_score(GameState *game_state, int player_id, Move played_move)
 {
     int score = 0;
     for (int i = 0; i < 4; i++)
     {
         for (int j = played_move.row - 3 + i; j <= played_move.row + i; j++)
         {
-            if (j < 0 || j > config.height - 1)
+            if (j < 0 || j > game_state->config->height - 1)
             {
                 break;
             }
-            else if (board[(j * config.width) + played_move.column] != player_id)
+            else if (game_state->board[(j * game_state->config->width) + played_move.column] != player_id)
             {
                 break;
             }
@@ -75,7 +75,7 @@ int column_score(Configuration config, int *board, int player_id, Move played_mo
     return score;
 }
 
-int lower_diagonal_score(Configuration config, int *board, int player_id, Move played_move)
+int lower_diagonal_score(GameState *game_state, int player_id, Move played_move)
 {
     int score = 0;
     for (int i = 0; i < 4; i++)
@@ -84,11 +84,11 @@ int lower_diagonal_score(Configuration config, int *board, int player_id, Move p
         for (int j = played_move.column - 3 + i; j <= played_move.column + i; j++)
         {
             counter++;
-            if (j < 0 || j > config.width - 1)
+            if (j < 0 || j > game_state->config->width - 1)
             {
                 break;
             }
-            else if (board[(played_move.row + 3 - counter) * config.width + j] != player_id)
+            else if (game_state->board[(played_move.row + 3 - counter) * game_state->config->width + j] != player_id)
             {
                 break;
             }
@@ -100,7 +100,7 @@ int lower_diagonal_score(Configuration config, int *board, int player_id, Move p
     }
     return score;
 }
-int upper_diagonal_score(Configuration config, int *board, int player_id, Move played_move)
+int upper_diagonal_score(GameState *game_state, int player_id, Move played_move)
 {
     int score = 0;
     for (int i = 0; i < 4; i++)
@@ -109,11 +109,11 @@ int upper_diagonal_score(Configuration config, int *board, int player_id, Move p
         for (int j = played_move.column - 3 + i; j <= played_move.column + i; j++)
         {
             counter++;
-            if (j < 0 || j > config.width - 1)
+            if (j < 0 || j > game_state->config->width - 1)
             {
                 break;
             }
-            else if (board[(played_move.row - 3 + counter) * config.width + j] != player_id)
+            else if (game_state->board[(played_move.row - 3 + counter) * game_state->config->width + j] != player_id)
             {
                 break;
             }
@@ -126,48 +126,49 @@ int upper_diagonal_score(Configuration config, int *board, int player_id, Move p
     return score;
 }
 
-int score_calculator(Configuration config, int *board, int player_id, Move played_move)
+int score_calculator(GameState *game_state, int player_id, Move played_move)
 {
     int score = 0;
-    score += row_score(config, board, player_id, played_move);
-    score += column_score(config, board, player_id, played_move);
-    score += lower_diagonal_score(config, board, player_id, played_move);
-    score += upper_diagonal_score(config, board, player_id, played_move);
+    score += row_score(game_state, player_id, played_move);
+    score += column_score(game_state, player_id, played_move);
+    score += lower_diagonal_score(game_state, player_id, played_move);
+    score += upper_diagonal_score(game_state, player_id, played_move);
     return score;
 }
 
-
-int play_move(Configuration config, int *board, Player *player, Move *played_move)
+int play_move(GameState *game_state, Move *played_move)
 {
     int move_validity;
-    move_validity = validate_move(config, board, played_move);
+    move_validity = validate_move(game_state, played_move);
     if (move_validity == MOVE_VALID || move_validity == MOVE_END)
     {
-        played_move->total_moves ++;
-        board[(played_move->row * config.width) + played_move->column] = player->id;
-        int score = score_calculator(config, board, player->id, *played_move);
-        player->score += score;
+        played_move->total_moves++;
+        Player *current_player = get_current_player(game_state);
+        game_state->board[(played_move->row * game_state->config->width) + played_move->column] = current_player->id;
+        int score = score_calculator(game_state, current_player->id, *played_move);
+        current_player->score += score;
     }
     return move_validity;
 }
 
-void unplay_move(Configuration config, int * board, Player *player, Move *played_move)
+void unplay_move(GameState *game_state, Move *played_move)
 {
     int move_validity;
-    move_validity = validate_move(config, board, played_move);
-    played_move->row++; //We have to add 1 because validate move get the first valid row to play in
-    played_move->total_moves --;
-    int score = score_calculator(config, board, player->id, *played_move);
-    board[played_move->row * config.width + played_move->column] = 0;
-    player->score -= score;
+    move_validity = validate_move(game_state, played_move);
+    Player *current_player = get_current_player(game_state);
+    played_move->row++; // We have to add 1 because validate move get the first valid row to play in
+    played_move->total_moves--;
+    int score = score_calculator(game_state, current_player->id, *played_move);
+    game_state->board[played_move->row * game_state->config->width + played_move->column] = 0;
+    current_player->score -= score;
 }
 
-void get_valid_columns(Configuration config, int *board, int valid_columns[], int * size)
+void get_valid_columns(Configuration config, int *board, int valid_columns[], int *size)
 {
-    int i,j;
+    int i, j;
     for (i = 0, j = 0; i < config.width && i < *size; i++)
     {
-        if (board[i * config.width + 0] == 0)
+        if (board[i] == 0)
         {
             valid_columns[j++] = i;
         }
