@@ -2,26 +2,27 @@
 #define F_STACK_H
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits.h>
 
 
-struct Stack {
+typedef struct Stack {
 	int top;
-	unsigned capacity;
+	unsigned long capacity;
 	int* array;
-};
+}Stack;
 
 
-struct Stack* createStack(unsigned capacity);
+Stack* createStack(unsigned long capacity);
 
-int isFull(struct Stack* stack);
+int isFull(Stack* stack);
 
-int isEmpty(struct Stack* stack);
+int isEmpty(Stack* stack);
 
-void push(struct Stack* stack, int item);
+void push(Stack* stack, int item);
 
-int pop(struct Stack* stack);
+int pop(Stack* stack);
 
-int peek(struct Stack* stack);
+int peek(Stack* stack);
 
 
 

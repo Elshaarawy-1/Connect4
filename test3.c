@@ -4,7 +4,6 @@
 #include "move_result.h"
 #include "fstack.h"
 #include "undo_redo.h"
-// #include "stack2.h"
 
 void SetGame(int row, int col, int board[][col])
 {
@@ -35,12 +34,12 @@ int main(){
     player.id = 1;
     player.score = 0;
     Move played_move;
-    config.height = 10, config.width = 10;
+    config.height = 1000, config.width = 1000;
     int board[config.height][config.width];
     SetGame(config.height, config.width, board);
     int game_validity = 100;
-    struct Stack* undostack = createStack(100);
-    struct Stack* redostack = createStack(100);
+    Stack* undostack = createStack(config.height*config.width);
+    Stack* redostack = createStack(config.height*config.width);
     while (game_validity != MOVE_END)
     {
         printf("Score: %d\n", player.score);
