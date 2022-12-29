@@ -39,9 +39,9 @@ bool read_int(char *prompt_message, int *answer);
 /// @return the number representing the option that the user selected (between 0 and menu.number_of_options)
 int read_selected_option(Menu *menu, char *prompt_message);
 
-void print_token(int token);
+void print_token(int player_id,int player_color);
 
-void print_board(Configuration config, int * board);
+void print_board(GameState game_state);
 
 /// @brief Print which player's turn it is
 /// @param player the player whose turn it is

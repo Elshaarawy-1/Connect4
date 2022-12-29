@@ -48,26 +48,29 @@ void print_menu(Menu *menu)
     }
 }
 
-void print_token(int token)
+void print_token(int player_id,int player_color)
 {
-    switch (token)
+    switch (player_id)
     {
     case 1:
-        printf(" ● ");
-        return;
     case 2:
-        printf(" ○ ");
+        set_foreground_color(player_color);
+        printf(" ● ");
+        reset_console_color();
         return;
+    // case 2:
+    //     printf(" ○ ");
+    //     return;
     default:
         printf("   ");
         return;
     }
 }
 
-void print_board(Configuration config, int *board)
+void print_board(GameState game_state)
 {
-    int frame_width = config.width * 2 + 1;
-    int frame_height = config.height * 2 + 1;
+    int frame_width = game_state.config->width * 2 + 1;
+    int frame_height = game_state.config->height * 2 + 1;
     for (int i = 0; i < frame_height; i++)
     {
         bool at_top = i == 0;
@@ -130,7 +133,18 @@ void print_board(Configuration config, int *board)
                     {
                         int r = (i - 1) / 2;
                         int c = (j - 1) / 2;
-                        print_token(board[(r * config.width) + c]);
+                        int player_id = game_state.board[(r * game_state.config->width) + c];
+                        int player_color;
+                        if (player_id == 1)
+                        {
+                            player_color = game_state.player1->color;
+                        }
+                        else if (player_id == 2)
+                        {
+                            player_color = game_state.player2->color;
+                        }
+
+                        print_token(player_id, player_color);
                     }
                 }
             }
@@ -141,7 +155,9 @@ void print_board(Configuration config, int *board)
 
 void print_turn(Player *player)
 {
-    printf("Player %d's turn", player->id);
+    set_foreground_color(player->color);
+    printf("\t\tPlayer %d's turn", player->id);
+    reset_console_color();
 }
 
 void print_elapsed_time(hms_time elapsed_time)
@@ -158,17 +174,23 @@ void print_elapsed_time(hms_time elapsed_time)
 
 void print_playerid(Player *player)
 {
+    set_foreground_color(player->color);
     printf("Player %-22d", player->id);
+    reset_console_color();
 }
 
 void print_n_moves(Player *player)
 {
+    set_foreground_color(player->color);
     printf("  Number of moves : %-10d", player->number_of_moves);
+    reset_console_color();
 }
 
 void print_score(Player *player)
 {
+    set_foreground_color(player->color);
     printf("  Score : %-20d", player->score);
+    reset_console_color();
 }
 
 void print_line()
@@ -178,10 +200,11 @@ void print_line()
 
 void print_game_state(GameState game_state)
 {
-    system("clear");   
+    system("clear");
+    printf("Total moves : %d\n",game_state.total_moves);
     print_elapsed_time(*(game_state.elapsed_time));
     print_line();
-    print_board(*(game_state.config), game_state.board);
+    print_board(game_state);
     print_line();
     Player *current_player = game_state.current_player_turn == 1 ? game_state.player1 : game_state.player2;
     print_turn(current_player);
@@ -197,7 +220,7 @@ void print_game_state(GameState game_state)
     print_line();
 }
 
-int read_board_input(char *prompt_message, Configuration* config)
+int read_board_input(char *prompt_message, Configuration *config)
 {
 
     int answer;
@@ -208,7 +231,7 @@ int read_board_input(char *prompt_message, Configuration* config)
         return read_board_input(prompt_message, config);
     }
 
-    if (answer < config->width && answer > -3)
+    if (answer <= config->width && answer > -3)
     {
         return answer;
     }
