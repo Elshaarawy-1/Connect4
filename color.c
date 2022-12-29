@@ -1,4 +1,6 @@
 #include "color.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 int get_random_foregroundcolor_id(int except_colorid){
     int color = rand() % (5 + 1);
