@@ -1,38 +1,43 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "configuration.h"
 #include "player.h"
 #include "move_result.h"
 #include "menu.h"
 #include "tui.h"
 #include "game.h"
+#include "color.h"
 
-void new_game_menu();
-void view_main_menu();
-void start_new_game();
+bool new_game_menu();
+bool view_main_menu();
+bool start_new_game();
+bool start_new_game_pvc();
 
 int main()
 {
     // view_main_menu();
-    start_new_game();
+    srand(time(0));
+    if(start_new_game()){
+        return 0;
+    }
     return 0;
 }
 
-void new_game_menu()
+bool new_game_menu()
 {
     Menu *new_game_menu = malloc(sizeof(*new_game_menu));
 
-    new_game_menu->number_of_options = 5;
+    new_game_menu->number_of_options = 4;
     new_game_menu->header = "Select an option : ";
     new_game_menu->options = malloc(sizeof(*new_game_menu->options) * new_game_menu->number_of_options);
 
     new_game_menu->options[0] = "Player vs Player";
-    new_game_menu->options[1] = "Player vs Computer (Easy)";
-    new_game_menu->options[2] = "Player vs Computer (Hard)";
+    new_game_menu->options[1] = "Player vs Computer";
     new_game_menu->options[3] = "Return to main menu";
     new_game_menu->options[4] = "Exit";
 
-    int selected_option = read_selected_option(new_game_menu, "The index of option you want to select (between 1 and 5) : ");
+    int selected_option = read_selected_option(new_game_menu, "The index of option you want to select (between 1 and 4) : ");
 
     free(new_game_menu->options);
     free(new_game_menu);
@@ -40,18 +45,19 @@ void new_game_menu()
     switch (selected_option)
     {
     case 1:
-        start_new_game();
+        return start_new_game();
         break;
     case 4:
-        view_main_menu();
+        return view_main_menu();
         break;
 
     default:
         break;
     }
+    return false;
 }
 
-void view_main_menu()
+bool view_main_menu()
 {
     Menu *main_menu = malloc(sizeof(*main_menu));
 
@@ -72,19 +78,54 @@ void view_main_menu()
     switch (selected_option)
     {
     case 1:
-        new_game_menu();
+        return new_game_menu();
         break;
 
     default:
         break;
     }
+    return false;
 }
 
-void start_new_game()
+bool start_new_game()
 {
     int is_end = 0;
 
     // Configuration *config = (Configuration *)malloc(sizeof(Configuration));
+
+    GameState *game_state = malloc(sizeof(GameState));
+    game_state->config = malloc(sizeof(Configuration));
+
+    game_state->config->height = 4;
+    game_state->config->width = 4;
+
+    game_state->player1 = malloc(sizeof(Player));
+    game_state->player2 = malloc(sizeof(Player));
+    game_state->board = calloc(game_state->config->height * game_state->config->width, sizeof(int));
+    game_state->elapsed_time = malloc(sizeof(hms_time));
+    game_state->game_mode = GAME_MODE_PVP;
+
+    Stack *undo_stack = createStack(game_state->config->height * game_state->config->width);
+    Stack *redo_stack = createStack(game_state->config->height * game_state->config->width);
+
+    init_game(game_state);
+    print_game_state(*game_state);
+    bool exit_game = false;
+    do
+    {
+        is_end = make_player_move(game_state, undo_stack, redo_stack, &exit_game);
+        if (exit_game)
+        {
+            return true;
+        }
+        redo_stack = createStack(game_state->config->height * game_state->config->width);
+    } while (!is_end);
+    return false;
+}
+
+bool start_new_game_pvc()
+{
+    int is_end = 0;
 
     GameState *game_state = malloc(sizeof(GameState));
     game_state->config = malloc(sizeof(Configuration));
@@ -96,30 +137,27 @@ void start_new_game()
     game_state->player2 = malloc(sizeof(Player));
     game_state->board = calloc(game_state->config->height * game_state->config->width, sizeof(int));
     game_state->elapsed_time = malloc(sizeof(hms_time));
+    game_state->game_mode = GAME_MODE_PVC;
 
+    Stack *undo_stack = createStack(game_state->config->height * game_state->config->width);
+    Stack *redo_stack = createStack(game_state->config->height * game_state->config->width);
 
-
-    game_state->player1->id = 1;
-    game_state->player1->color = 0;
-    game_state->player1->number_of_moves = 0;
-    game_state->player1->score = 0;
-    
-    game_state->player2->id = 2;
-    game_state->player2->color = 1;
-    game_state->player2->number_of_moves = 0;
-    game_state->player2->score = 0;
-    game_state->current_player_turn = 1;
-
-    game_state->elapsed_time->hours = 0;
-    game_state->elapsed_time->minutes = 0;
-    game_state->elapsed_time->seconds = 0;
-    
-    game_state->timer_start = start_timer();
-    // *game_state = init_game(*config);
+    init_game(game_state);
     print_game_state(*game_state);
+    bool exit_game = false;
     do
     {
-        is_end = make_player_move(game_state);
-
+        is_end = make_player_move(game_state, undo_stack, redo_stack, &exit_game);
+        if (exit_game)
+        {
+            return true;
+        }
+        if (!is_end)
+        {
+            is_end = make_computer_move(game_state,undo_stack,redo_stack);
+        }
+        
+        redo_stack = createStack(game_state->config->height * game_state->config->width);
     } while (!is_end);
+    return false;
 }
