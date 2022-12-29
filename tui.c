@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "tui.h"
+#include "color.c"
 
 bool read_int(char *prompt_message, int *answer)
 {
@@ -62,7 +64,7 @@ void print_token(int token)
     }
 }
 
-void print_board(Configuration config, int board[][config.width])
+void print_board(Configuration config, int *board)
 {
     int frame_width = config.width * 2 + 1;
     int frame_height = config.height * 2 + 1;
@@ -125,7 +127,11 @@ void print_board(Configuration config, int board[][config.width])
                     else if (!at_horizontal_border && at_vertical_border)
                         printf(VERTICAL_LINE);
                     else
-                        print_token(board[(i - 1) / 2][(j - 1) / 2]);
+                    {
+                        int r = (i - 1) / 2;
+                        int c = (j - 1) / 2;
+                        print_token(board[(r * config.width) + c]);
+                    }
                 }
             }
         }
@@ -140,10 +146,9 @@ void print_turn(Player *player)
 
 void print_elapsed_time(hms_time elapsed_time)
 {
-    char *str_elapsed_time = NULL;
     if (elapsed_time.hours == 0)
     {
-        printf(str_elapsed_time, "Game time : %02d:%02d", elapsed_time.minutes, elapsed_time.seconds);
+        printf("Game time : %02d:%02d", elapsed_time.minutes, elapsed_time.seconds);
     }
     else if (elapsed_time.hours > 0)
     {
@@ -153,16 +158,62 @@ void print_elapsed_time(hms_time elapsed_time)
 
 void print_playerid(Player *player)
 {
-    printf("Player %d", player->id);
+    printf("Player %-22d", player->id);
 }
 
 void print_n_moves(Player *player)
 {
-    printf("  Number of moves : %d", player->number_of_moves);
+    printf("  Number of moves : %-10d", player->number_of_moves);
 }
 
 void print_score(Player *player)
 {
-    printf("  Score : %d", player->score);
+    printf("  Score : %-20d", player->score);
 }
 
+void print_line()
+{
+    printf("\n");
+}
+
+void print_game_state(GameState game_state)
+{
+    system("clear");   
+    print_elapsed_time(*(game_state.elapsed_time));
+    print_line();
+    print_board(*(game_state.config), game_state.board);
+    print_line();
+    Player *current_player = game_state.current_player_turn == 1 ? game_state.player1 : game_state.player2;
+    print_turn(current_player);
+    print_line();
+    print_playerid(game_state.player1);
+    print_playerid(game_state.player2);
+    print_line();
+    print_score(game_state.player1);
+    print_score(game_state.player2);
+    print_line();
+    print_n_moves(game_state.player1);
+    print_n_moves(game_state.player2);
+    print_line();
+}
+
+int read_board_input(char *prompt_message, Configuration* config)
+{
+
+    int answer;
+    bool is_int = read_int(prompt_message, &answer);
+    if (!is_int)
+    {
+        printf("\n[ERR] Input is invalid, it must be an integer.\n");
+        return read_board_input(prompt_message, config);
+    }
+
+    if (answer < config->width && answer > -3)
+    {
+        return answer;
+    }
+
+    // if the supplied option index isn't in the valid range, prompt the user again
+    printf("\n[ERR] Input is invalid, the selected option is outside of the valid range\n");
+    return read_board_input(prompt_message, config);
+}

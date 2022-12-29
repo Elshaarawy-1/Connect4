@@ -6,6 +6,7 @@
 #include "menu.h"
 #include "player.h"
 #include "configuration.h"
+#include "game_state.h"
 
 #define INTERSECTION "╬"
 #define HORIZONTAL_LINE "═══"
@@ -40,7 +41,7 @@ int read_selected_option(Menu *menu, char *prompt_message);
 
 void print_token(int token);
 
-void print_board(Configuration config, int board[][config.width]);
+void print_board(Configuration config, int * board);
 
 /// @brief Print which player's turn it is
 /// @param player the player whose turn it is
@@ -61,5 +62,9 @@ void print_n_moves(Player *player);
 /// @brief Print player score
 /// @param player player whose info is to be printed
 void print_score(Player *player);
+
+void print_game_state(GameState game_state);
+
+int read_board_input(char* prompt_message,Configuration * config);
 
 #endif
