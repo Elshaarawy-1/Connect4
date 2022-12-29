@@ -1,9 +1,5 @@
 #ifndef F_STACK_H
 #define F_STACK_H
-#include <stdlib.h>
-#include <stdio.h>
-#include <limits.h>
-
 
 typedef struct Stack {
 	int top;

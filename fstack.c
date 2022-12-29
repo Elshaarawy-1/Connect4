@@ -1,4 +1,8 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <limits.h>
 #include "fstack.h"
+
 Stack* createStack(unsigned long capacity)
 {
 	Stack* stack = (Stack*)malloc(sizeof(Stack));
