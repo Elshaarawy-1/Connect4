@@ -5,20 +5,21 @@
 #include "move_result.h"
 #include "menu.h"
 #include "tui.h"
+#include "game.h"
 
 void new_game_menu();
 void view_main_menu();
-void load_game();
-
+void start_new_game();
 
 int main()
 {
-    view_main_menu();
-
+    // view_main_menu();
+    start_new_game();
     return 0;
 }
 
-void new_game_menu(){
+void new_game_menu()
+{
     Menu *new_game_menu = malloc(sizeof(*new_game_menu));
 
     new_game_menu->number_of_options = 5;
@@ -33,21 +34,18 @@ void new_game_menu(){
 
     int selected_option = read_selected_option(new_game_menu, "The index of option you want to select (between 1 and 5) : ");
 
-    //
-
-
     free(new_game_menu->options);
     free(new_game_menu);
-    
+
     switch (selected_option)
     {
-        case 1:
-        load_game();
+    case 1:
+        start_new_game();
         break;
     case 4:
         view_main_menu();
         break;
-    
+
     default:
         break;
     }
@@ -68,7 +66,6 @@ void view_main_menu()
 
     int selected_option = read_selected_option(main_menu, "The index of option you want to select (between 1 and 4) : ");
 
-
     free(main_menu->options);
     free(main_menu);
 
@@ -77,23 +74,52 @@ void view_main_menu()
     case 1:
         new_game_menu();
         break;
-    
+
     default:
         break;
     }
-
-}
-void load_game(){
-    int board[][5] = {{0, 0, 0, 0, 0},
-                      {0, 0, 0, 0, 0},
-                      {1, 2, 0, 0, 0},
-                      {2, 1, 0, 0, 0},
-                      {2, 2, 1, 0, 2},
-                      {1, 2, 1, 0, 1}};
-
-    Configuration config ={5,6};
-    print_board(config, board);
 }
 
+void start_new_game()
+{
+    int is_end = 0;
+
+    // Configuration *config = (Configuration *)malloc(sizeof(Configuration));
+
+    GameState *game_state = malloc(sizeof(GameState));
+    game_state->config = malloc(sizeof(Configuration));
+
+    game_state->config->height = 10;
+    game_state->config->width = 10;
+
+    game_state->player1 = malloc(sizeof(Player));
+    game_state->player2 = malloc(sizeof(Player));
+    game_state->board = calloc(game_state->config->height * game_state->config->width, sizeof(int));
+    game_state->elapsed_time = malloc(sizeof(hms_time));
 
 
+
+    game_state->player1->id = 1;
+    game_state->player1->color = 0;
+    game_state->player1->number_of_moves = 0;
+    game_state->player1->score = 0;
+    
+    game_state->player2->id = 2;
+    game_state->player2->color = 1;
+    game_state->player2->number_of_moves = 0;
+    game_state->player2->score = 0;
+    game_state->current_player_turn = 1;
+
+    game_state->elapsed_time->hours = 0;
+    game_state->elapsed_time->minutes = 0;
+    game_state->elapsed_time->seconds = 0;
+    
+    game_state->timer_start = start_timer();
+    // *game_state = init_game(*config);
+    print_game_state(*game_state);
+    do
+    {
+        is_end = make_player_move(game_state);
+
+    } while (!is_end);
+}
