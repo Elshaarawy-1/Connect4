@@ -21,12 +21,14 @@ time_t start_timer();
 
 /// @brief splits time_t seconds to hours, minutes, seconds. Make sure that the hours of the given time aren't more that sizeof(int)
 /// @param total_seconds time to be represented as hours,minutes and seconds
-/// @return time as stuct with hours,minutes and seconds
-hms_time split_time(time_t total_seconds);
+/// @param hms time as stuct with hours,minutes and seconds
+void split_time(time_t total_seconds, hms_time* hms);
+
+time_t resume_timer(hms_time elapsed_time);
 
 /// @brief gets elapsed time between timer_start and now as hours, minutes and seconds
 /// @param timer_start starting time to calcualate time from
-/// @return elapsed time as hours, minutes and seconds
-hms_time get_elapsed_time(time_t timer_start);
+/// @param elapsed_time elapsed time as hours, minutes and seconds
+void get_elapsed_time(time_t timer_start, hms_time *elapsed_time);
 
 #endif
