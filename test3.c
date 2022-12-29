@@ -5,24 +5,24 @@
 #include "fstack.h"
 #include "undo_redo.h"
 
-void SetGame(int row, int col, int board[][col])
+void SetGame(int row, int col, int * board)
 {
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            board[i][j] = 0;
+            board[i * col + j] = 0;
         }
     }   
 }
 
-void print_game(int row, int col, int board[][col])
+void print_game(int row, int col, int * board)
 {
     for (int i = 0; i < row; i++)
     {
         for (int j = 0; j < col; j++)
         {
-            printf("%d ", board[i][j]);
+            printf("%d ", board[i * col + j]);
         }
         printf("\n");
     }  
@@ -34,8 +34,8 @@ int main(){
     player.id = 1;
     player.score = 0;
     Move played_move;
-    config.height = 1000, config.width = 1000;
-    int board[config.height][config.width];
+    config.height = 10, config.width = 10;
+    int * board =calloc(config.height * config.width, sizeof(int));
     SetGame(config.height, config.width, board);
     int game_validity = 100;
     Stack* undostack = createStack(config.height*config.width);
@@ -43,15 +43,15 @@ int main(){
     while (game_validity != MOVE_END)
     {
         printf("Score: %d\n", player.score);
-        print_game(10, 10, board);
+        print_game(config.height, config.width, board);
         scanf("%d", &(played_move.column));
         if (played_move.column == -1)
         {
-            undo_game(undostack, redostack, config, board, &player, &played_move);
+            undo_game(undostack, redostack, config, board, &player);
         }
         else if (played_move.column == -2)
         {
-            redo_game(undostack, redostack, config, board, &player, &played_move);
+            redo_game(undostack, redostack, config, board, &player);
         }
         else
         {            
