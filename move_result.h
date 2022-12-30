@@ -8,6 +8,10 @@
 #define MOVE_END 1                   // The move is the ending move
 #define MOVE_INVALID_COLUMN_FULL 2   // The move is invalid because the specified column is invalid
 #define MOVE_INVALID_OUT_OF_BOUNDS 3 // The move is invalid because the specifed column is out of bounds
+#define MOVE_UNDO 4
+#define MOVE_REDO 5
+#define MOVE_EXIT 6
+#define MOVE_NONE 7
 
 typedef struct s_move
 {
