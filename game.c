@@ -8,7 +8,6 @@
 #include "color.h"
 #include "undo_redo.h"
 
-#define MOVE_UNDO 5
 
 void init_game(GameState *game_state)
 {
@@ -31,18 +30,13 @@ void init_game(GameState *game_state)
     game_state->timer_start = start_timer();
 }
 
-int make_player_move(GameState *game_state, Stack *undo_stack, Stack *redo_stack, bool *exit_game)
+int make_player_move(GameState *game_state, Stack *undo_stack, Stack *redo_stack)
 {
     int input = read_board_input("Select a column to play in or enter -1 to open the in-game menu : ", game_state->config);
 
     if (input == -1)
     {
-        run_in_game_menu(game_state, undo_stack, redo_stack, exit_game);
-        if (*exit_game == true)
-        {
-            return MOVE_END;
-        }
-        return MOVE_UNDO;
+        return run_in_game_menu(game_state, undo_stack, redo_stack);
     }
 
     Move played_move;
@@ -53,13 +47,13 @@ int make_player_move(GameState *game_state, Stack *undo_stack, Stack *redo_stack
     if (move_validity == MOVE_INVALID_COLUMN_FULL)
     {
         printf("\n[ERR] Input is invalid, the column you chose is already full. Please choose another column\n");
-        return make_player_move(game_state, undo_stack, redo_stack, exit_game);
+        return make_player_move(game_state, undo_stack, redo_stack);
     }
 
     if (move_validity == MOVE_INVALID_OUT_OF_BOUNDS)
     {
         printf("\n[ERR] Input is invalid, the column you chose is out of bounds. Please choose another column\n");
-        return make_player_move(game_state, undo_stack, redo_stack, exit_game);
+        return make_player_move(game_state, undo_stack, redo_stack);
     }
 
     change_turn(game_state);
@@ -78,10 +72,10 @@ int make_computer_move(GameState *game_state, Stack *undo_stack, Stack *redo_sta
     int valid_columns[size];
     get_valid_columns(*(game_state->config), game_state->board, valid_columns, &size);
 
-    int random_column = rand() % (size);
+    int random_column_index = rand() % (size);
     Move played_move;
 
-    played_move.column = random_column;
+    played_move.column = valid_columns[random_column_index];
     played_move.total_moves = game_state->total_moves;
     Player *current_player = get_current_player(game_state);
     int move_validity = play_move(game_state, &played_move);
@@ -96,7 +90,7 @@ int make_computer_move(GameState *game_state, Stack *undo_stack, Stack *redo_sta
     return move_validity;
 }
 
-void run_in_game_menu(GameState *game_state, Stack *undo_stack, Stack *redo_stack, bool *exit_game)
+int run_in_game_menu(GameState *game_state, Stack *undo_stack, Stack *redo_stack)
 {
     Menu *in_game_menu = malloc(sizeof(*in_game_menu));
 
@@ -122,7 +116,8 @@ void run_in_game_menu(GameState *game_state, Stack *undo_stack, Stack *redo_stac
         bool can_undo = undo_game(game_state, undo_stack, redo_stack);
         if (!can_undo)
         {
-            printf("There are no moves to undo\n");
+            print_wrn("There are no moves to undo\n");
+            return MOVE_NONE;
         }
 
         if (game_state->game_mode == GAME_MODE_PVC) // if playing against computer, undo 2 moves
@@ -130,27 +125,26 @@ void run_in_game_menu(GameState *game_state, Stack *undo_stack, Stack *redo_stac
             undo_game(game_state, undo_stack, redo_stack);
         }
 
-        break;
+        return MOVE_UNDO;
     }
     case 2:
     {
         bool can_redo = redo_game(game_state, undo_stack, redo_stack);
         if (!can_redo)
         {
-            printf("There are no moves to redo\n");
+            print_wrn("There are no moves to redo\n");
+            return MOVE_NONE;
         }
-        if (game_state->game_mode == GAME_MODE_PVC) // if playing against computer, have the computer make a new move
-        {
-            make_computer_move(game_state, undo_stack, redo_stack);
-        }
+        // if (game_state->game_mode == GAME_MODE_PVC) // if playing against computer, have the computer make a new move
+        // {
+        //     make_computer_move(game_state, undo_stack, redo_stack);
+        // }
 
-        break;
+        return MOVE_REDO;
     }
     case 4:
-        *exit_game = true;
-        return;
+        return MOVE_EXIT;
     default:
-        break;
+        return MOVE_NONE;
     }
-    *exit_game = false;
 }
