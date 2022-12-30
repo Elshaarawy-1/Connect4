@@ -3,7 +3,6 @@
 
 typedef struct s_player
 {
-    char *name;
     int id;
     int score;
     int color;
