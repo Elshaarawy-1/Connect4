@@ -1,14 +1,15 @@
 #include "savingplayer.h"
 
-bool write_data(winning_player player)
+bool write_data(winning_player arr[])
 {
     FILE *file;
-    file = fopen("Leader_board.bin", "ab");
+    file = fopen("Leader_board.bin", "wb");
     if (file == NULL) return false;
-    fwrite(&player, sizeof(winning_player), 1, file);
+    fwrite(arr, sizeof(winning_player)*250, 1, file);
     if (fclose(file) == EOF) return false; 
     return true;
 }
+
 
 bool read_data(winning_player arr[])
 {
@@ -17,7 +18,7 @@ bool read_data(winning_player arr[])
     if (file == NULL) return false;
     while (!feof(file))
     {
-        if(fread(arr, sizeof(winning_player), 1, file) != 1)
+        if(fread(arr, sizeof(winning_player) * 250, 1, file) != 1)
             return false;
     }
     fclose(file);

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <PlayerHighScore.h>
-bool write_data(winning_player player);
+bool write_data(winning_player arr[])
 bool read_data(winning_player arr[]);
 
 
