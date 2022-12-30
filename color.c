@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 int get_random_foregroundcolor_id(int except_colorid){
-    int color = rand() % (5 + 1);
+    int color = rand() % (4 + 1);
     if (color == except_colorid)
     {
         return get_random_foregroundcolor_id(except_colorid);
@@ -30,9 +30,6 @@ void set_foreground_color(int color_id)
         break;
     case COLOR_FOREGROUND_MAGENTA_ID:
         set_console_color(COLOR_FOREGROUND_MAGENTA);
-        break;
-    case COLOR_FOREGROUND_CYAN_ID:
-        set_console_color(COLOR_FOREGROUND_CYAN);
         break;
     default:
         break;
