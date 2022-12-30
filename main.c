@@ -11,14 +11,15 @@
 
 bool new_game_menu();
 bool view_main_menu();
-bool start_new_game();
+bool start_new_game_pvp();
 bool start_new_game_pvc();
 
 int main()
 {
     // view_main_menu();
     srand(time(0));
-    if(start_new_game()){
+    if (start_new_game_pvp())
+    {
         return 0;
     }
     return 0;
@@ -45,7 +46,7 @@ bool new_game_menu()
     switch (selected_option)
     {
     case 1:
-        return start_new_game();
+        return start_new_game_pvp();
         break;
     case 4:
         return view_main_menu();
@@ -87,9 +88,9 @@ bool view_main_menu()
     return false;
 }
 
-bool start_new_game()
+bool start_new_game_pvp()
 {
-    int is_end = 0;
+    int move_type = 0;
 
     // Configuration *config = (Configuration *)malloc(sizeof(Configuration));
 
@@ -110,28 +111,31 @@ bool start_new_game()
 
     init_game(game_state);
     print_game_state(*game_state);
-    bool exit_game = false;
     do
     {
-        is_end = make_player_move(game_state, undo_stack, redo_stack, &exit_game);
-        if (exit_game)
+        move_type = make_player_move(game_state, undo_stack, redo_stack);
+        if (move_type == MOVE_EXIT)
         {
             return true;
         }
-        redo_stack = createStack(game_state->config->height * game_state->config->width);
-    } while (!is_end);
+        if (move_type == MOVE_VALID)
+        {
+            redo_stack = createStack(game_state->config->height * game_state->config->width);
+        }
+        
+    } while (move_type != MOVE_END);
     return false;
 }
 
 bool start_new_game_pvc()
 {
-    int is_end = 0;
+    int move_type = 0;
 
     GameState *game_state = malloc(sizeof(GameState));
     game_state->config = malloc(sizeof(Configuration));
 
-    game_state->config->height = 10;
-    game_state->config->width = 10;
+    game_state->config->height = 4;
+    game_state->config->width = 4;
 
     game_state->player1 = malloc(sizeof(Player));
     game_state->player2 = malloc(sizeof(Player));
@@ -144,20 +148,19 @@ bool start_new_game_pvc()
 
     init_game(game_state);
     print_game_state(*game_state);
-    bool exit_game = false;
     do
     {
-        is_end = make_player_move(game_state, undo_stack, redo_stack, &exit_game);
-        if (exit_game)
+        move_type = make_player_move(game_state, undo_stack, redo_stack);
+        if (move_type == MOVE_EXIT)
         {
             return true;
         }
-        if (!is_end)
+        if (move_type == MOVE_VALID || move_type == MOVE_REDO) // computer only plays if the user enters a valid move or redos
         {
-            is_end = make_computer_move(game_state,undo_stack,redo_stack);
+            move_type = make_computer_move(game_state, undo_stack, redo_stack);
+            redo_stack = createStack(game_state->config->height * game_state->config->width);
         }
-        
-        redo_stack = createStack(game_state->config->height * game_state->config->width);
-    } while (!is_end);
+
+    } while (move_type != MOVE_END);
     return false;
 }
