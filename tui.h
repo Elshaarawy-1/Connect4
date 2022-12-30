@@ -39,6 +39,14 @@ bool read_int(char *prompt_message, int *answer);
 /// @return the number representing the option that the user selected (between 0 and menu.number_of_options)
 int read_selected_option(Menu *menu, char *prompt_message);
 
+/// @brief prints error message to console
+/// @param error_msg the message to print
+void print_err(char *error_msg);
+
+/// @brief prints warning message to console
+/// @param error_msg the message to print
+void print_wrn(char *warning_msg);
+
 void print_token(int player_id,int player_color);
 
 void print_board(GameState game_state);

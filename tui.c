@@ -48,7 +48,21 @@ void print_menu(Menu *menu)
     }
 }
 
-void print_token(int player_id,int player_color)
+void print_err(char *error_msg)
+{
+    set_console_color(COLOR_FOREGROUND_RED);
+    printf("[ERR] %s", error_msg);
+    reset_console_color();
+}
+
+void print_wrn(char *warning_msg)
+{
+    set_console_color(COLOR_FOREGROUND_YELLOW);
+    printf("[WRN] %s", warning_msg);
+    reset_console_color();
+}
+
+void print_token(int player_id, int player_color)
 {
     switch (player_id)
     {
@@ -201,7 +215,7 @@ void print_line()
 void print_game_state(GameState game_state)
 {
     system("clear");
-    printf("Total moves : %d\n",game_state.total_moves);
+    printf("Total moves : %d\n", game_state.total_moves);
     print_elapsed_time(*(game_state.elapsed_time));
     print_line();
     print_board(game_state);
