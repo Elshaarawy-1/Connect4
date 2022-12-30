@@ -56,15 +56,8 @@ int get_winner_rank(winning_player leader_board[], winning_player player)
 {
     int rank;
     rank = add_player_score(leader_board, player);
+    bubbleSort(leader_board);
+    rank = add_player_score(leader_board, player);
     write_data(leader_board);
-    if (rank == 250)
-    {
-        return rank;
-    }
-    else
-    {
-        bubbleSort(leader_board);
-        rank = add_player_score(leader_board, player);
-        return rank;
-    }
+    return rank;
 }
