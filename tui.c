@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "tui.h"
 #include "color.h"
 
@@ -16,6 +17,58 @@ bool read_int(char *prompt_message, int *answer)
         return false;
     }
     return true;
+}
+
+bool read_line(char *prompt, char *buff, size_t size)
+{
+    int ch, extra;
+
+    // Get line with buffer overrun protection.
+    if (prompt != NULL)
+    {
+        printf("%s", prompt);
+        fflush(stdout);
+    }
+    if (fgets(buff, size, stdin) == NULL)
+        return false;
+
+    // If it was too long, there'll be no newline. In that case, we flush
+    // to end of line so that excess doesn't affect the next call.
+    if (buff[strlen(buff) - 1] != '\n')
+    {
+        extra = 0;
+        while (((ch = getchar()) != '\n') && (ch != EOF))
+            extra = 1;
+        buff[strlen(buff) - 1] = '\0';
+        return (extra == 1) ? false : true;
+    }
+
+    // Otherwise remove newline and give string back to caller.
+    buff[strlen(buff) - 1] = '\0';
+    return true;
+}
+
+void read_line_retry(char *prompt, char *buff, size_t size)
+{
+    bool success = read_line(prompt, buff, size);
+    if (!success)
+    {
+        char err_msg[100];
+        sprintf(err_msg, "Input is invalid. Make sure input size is at most %lu.\n", size);
+        print_err(err_msg);
+        read_line_retry(prompt, buff, size);
+    }
+}
+
+void read_int_retry(char *prompt, int *answer)
+{
+    bool success = read_int(prompt, answer);
+    if (!success)
+    {
+        char err_msg[100];
+        print_err("Input is invalid. Make sure you entered an integer\n");
+        read_int_retry(prompt, answer);
+    }
 }
 
 int read_selected_option(Menu *menu, char *prompt_message)

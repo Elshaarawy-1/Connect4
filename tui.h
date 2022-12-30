@@ -31,6 +31,12 @@ void print_menu(Menu *menu);
 /// @return true if the user entered an integer
 bool read_int(char *prompt_message, int *answer);
 
+bool read_line (char *prompt, char *buff, size_t size);
+
+void read_int_retry(char *prompt, int *answer);
+
+void read_line_retry(char *prompt, char *buff, size_t size);
+
 /// @brief Prompt the user to select an option from a menu and get the user input.
 /// The user selects an option by entering the number that represents it.
 /// If the user enters an invalid input, reprint the menu and ask the user for input again.
