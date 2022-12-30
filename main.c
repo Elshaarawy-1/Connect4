@@ -8,24 +8,106 @@
 #include "tui.h"
 #include "game.h"
 #include "color.h"
+#include "helpers.h"
+#include "config_parser.h"
 
-bool new_game_menu();
-bool view_main_menu();
-bool start_new_game_pvp();
-bool start_new_game_pvc();
+bool new_game_menu(GameState *game_state);
+bool view_main_menu(GameState *game_state);
+bool start_new_game_pvp(GameState *game_state);
+bool start_new_game_pvc(GameState *game_state);
+bool end_game(GameState *game_state);
+
+bool load_config(char *path, size_t path_size, Configuration *config)
+{
+    static int i = 0;
+
+    bool valid_config = parse_config(path, config);
+    if (valid_config)
+    {
+        // printf("%d\n%d\n%d\n", config->height, config->width, config->highscore);
+        i = 0;
+        return true;
+    }
+    else
+    {
+        i++;
+        if (i > 3)
+        {
+            i = 0;
+            return false;
+        }
+        print_err("Invalid config\n");
+        char config_path[path_size];
+        read_line_retry("Please enter the configuration file path : ", config_path, 256);
+
+        return load_config(config_path, 256, config);
+    }
+}
 
 int main()
 {
-    // view_main_menu();
     srand(time(0));
-    if (start_new_game_pvp())
+
+    Configuration *config = malloc(sizeof(Configuration));
+
+    char config_path[256] = "config.xml";
+    bool load_success = load_config(config_path, 256, config);
+
+    if (!load_success)
     {
-        return 0;
+        printf("Failed to read config too many times. Exiting...");
     }
+
+    bool exit = false;
+    do
+    {
+        GameState *game_state = malloc(sizeof(GameState));
+        game_state->config = config;
+        exit = view_main_menu(game_state);
+        if (!exit)
+        {
+            exit = end_game(game_state);
+        }
+
+    } while (!exit);
+
     return 0;
 }
 
-bool new_game_menu()
+bool end_game(GameState *game_state)
+{
+    if (game_state->player1->score == game_state->player2->score)
+    {
+        printf("The game ended with a draw.\n");
+    }
+    else
+    {
+
+        if (game_state->player1->score > game_state->player2->score || game_state->game_mode == GAME_MODE_PVP)
+        {
+            Player *winner = game_state->player1->score > game_state->player2->score ? game_state->player1 : game_state->player2;
+
+            set_foreground_color(winner->color);
+            printf("Congratulations player %d. You won!\n", winner->id);
+
+            char name[50];
+            read_line_retry("Enter your name to save your score", name, 50);
+            // TODO: save score
+        }
+        else
+        {
+            printf("Unfortunately you lost :(");
+        }
+        
+    }
+
+    int answer;
+    read_int_retry("Enter 1 if you want to go back to main menu and play again : ", &answer);
+
+    return answer != 1; // if answer isn't one, exit
+}
+
+bool new_game_menu(GameState *game_state)
 {
     Menu *new_game_menu = malloc(sizeof(*new_game_menu));
 
@@ -46,19 +128,19 @@ bool new_game_menu()
     switch (selected_option)
     {
     case 1:
-        return start_new_game_pvp();
-        break;
+        return start_new_game_pvp(game_state);
+    case 2:
+        return start_new_game_pvc(game_state);
+
     case 4:
-        return view_main_menu();
-        break;
+        return view_main_menu(game_state);
 
     default:
-        break;
+        return false;
     }
-    return false;
 }
 
-bool view_main_menu()
+bool view_main_menu(GameState *game_state)
 {
     Menu *main_menu = malloc(sizeof(*main_menu));
 
@@ -79,7 +161,7 @@ bool view_main_menu()
     switch (selected_option)
     {
     case 1:
-        return new_game_menu();
+        return new_game_menu(game_state);
         break;
 
     default:
@@ -88,17 +170,9 @@ bool view_main_menu()
     return false;
 }
 
-bool start_new_game_pvp()
+bool start_new_game_pvp(GameState *game_state)
 {
     int move_type = 0;
-
-    // Configuration *config = (Configuration *)malloc(sizeof(Configuration));
-
-    GameState *game_state = malloc(sizeof(GameState));
-    game_state->config = malloc(sizeof(Configuration));
-
-    game_state->config->height = 4;
-    game_state->config->width = 4;
 
     game_state->player1 = malloc(sizeof(Player));
     game_state->player2 = malloc(sizeof(Player));
@@ -122,20 +196,14 @@ bool start_new_game_pvp()
         {
             redo_stack = createStack(game_state->config->height * game_state->config->width);
         }
-        
+
     } while (move_type != MOVE_END);
     return false;
 }
 
-bool start_new_game_pvc()
+bool start_new_game_pvc(GameState *game_state)
 {
     int move_type = 0;
-
-    GameState *game_state = malloc(sizeof(GameState));
-    game_state->config = malloc(sizeof(Configuration));
-
-    game_state->config->height = 4;
-    game_state->config->width = 4;
 
     game_state->player1 = malloc(sizeof(Player));
     game_state->player2 = malloc(sizeof(Player));
