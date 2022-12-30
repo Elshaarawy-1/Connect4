@@ -27,6 +27,8 @@ void init_game(GameState *game_state)
     game_state->elapsed_time->minutes = 0;
     game_state->elapsed_time->seconds = 0;
 
+    game_state->total_moves = 0;
+
     game_state->timer_start = start_timer();
 }
 
