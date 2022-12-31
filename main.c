@@ -49,10 +49,7 @@ int main()
         GameState *game_state = malloc(sizeof(GameState));
         game_state->config = config;
         exit = view_main_menu(game_state);
-        if (!exit)
-        {
-            exit = end_game(game_state);
-        }
+        
 
     } while (!exit);
 
@@ -239,7 +236,6 @@ bool load_game_menu(GameState *game_state)
     if (actual_n == 0)
     {
         printf("No games to load. Start a new game");
-        free(load_menu->options);
         free(load_menu);
         return new_game_menu(game_state);
     }
@@ -334,7 +330,7 @@ bool run_pvp_game(GameState *game_state)
             write_data(file_name, game_state);
         }
     } while (move_type != MOVE_END);
-    return false;
+    return end_game(game_state);
 }
 
 bool start_new_game_pvp(GameState *game_state)
@@ -381,7 +377,8 @@ bool run_pvc_game(GameState *game_state)
         }
 
     } while (move_type != MOVE_END);
-    return false;
+
+    return end_game(game_state);
 }
 
 bool start_new_game_pvc(GameState *game_state)
