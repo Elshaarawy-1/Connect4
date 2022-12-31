@@ -73,16 +73,16 @@ bool end_game(GameState *game_state)
             set_foreground_color(winner->color);
             printf("Congratulations player %d. You won!\n", winner->id);
             reset_console_color();
-            char name[50];
+            char *name = calloc(50,sizeof(char));
             read_line_retry("Enter your name to save your score : ", name, 50);
-            printf("%s", name);
+            // printf("%s", name);
             winning_player leaderboard[250];
             read_leaderboard(leaderboard);
             winning_player leaderboard_entry;
             strcpy(leaderboard_entry.name, name);
             leaderboard_entry.score = winner->score;
             int rank = get_winner_rank(leaderboard, leaderboard_entry);
-            printf("Your rank is %d and your high score is %d\n", rank, leaderboard_entry.score);
+            printf("Your rank is %d\n", rank);
         }
         else
         {

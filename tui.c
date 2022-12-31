@@ -43,7 +43,6 @@ bool read_line(char *prompt, char *buff, size_t size)
 
     // Otherwise remove newline and give string back to caller.
     buff[strlen(buff) - 1] = '\0';
-    buff = strstrip(buff);
     return true;
 }
 
@@ -137,6 +136,12 @@ void print_board(GameState game_state)
 {
     int frame_width = game_state.config->width * 2 + 1;
     int frame_height = game_state.config->height * 2 + 1;
+    printf("  ");
+    for (int i = 0; i < game_state.config->width; i++)
+    {
+        printf("%d   ",i+1);
+    }
+    printf("\n");
     for (int i = 0; i < frame_height; i++)
     {
         bool at_top = i == 0;
