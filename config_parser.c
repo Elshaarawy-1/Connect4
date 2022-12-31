@@ -98,7 +98,19 @@ bool serialize_config_str(char *config_str, Configuration *config)
         return false;
     }
 
-    return serialize_child(match, "Highscores", &(config->highscore));
+    if (config->width * config->height < 12)
+    {
+        return false;
+    }
+    
+    serialization_success = serialize_child(match, "Highscores", &(config->highscore));
+
+    if (!serialization_success)
+    {
+        return false;
+    }
+
+    return config->highscore >= 1;
 }
 
 bool parse_config(char *config_path, Configuration *config)
