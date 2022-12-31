@@ -18,6 +18,7 @@ typedef struct GameState
     time_t timer_start;
     hms_time *elapsed_time;
     int game_mode;
+    int file_id;
 } GameState;
 
 Player* get_current_player(GameState* game_state);
