@@ -298,7 +298,7 @@ bool load_game_menu(GameState *game_state)
 
     if (selected_option == actual_n - 1)
     {
-        return load_game_menu(game_state);
+        return new_game_menu(game_state);
     }
     return false;
 }
