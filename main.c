@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 #include "configuration.h"
 #include "player.h"
 #include "move_result.h"
@@ -11,8 +13,8 @@
 #include "helpers.h"
 #include "config_parser.h"
 #include "save_load.h"
-#include <sys/stat.h>
-#include <sys/types.h>
+#include "player_highscore.h"
+
 
 bool new_game_menu(GameState *game_state);
 bool view_main_menu(GameState *game_state);
@@ -23,6 +25,7 @@ bool run_pvp_game(GameState *game_state);
 bool run_pvc_game(GameState *game_state);
 bool end_game(GameState *game_state);
 void set_save_file(GameState *game_state);
+void view_leaderboard(winning_player leaderboard[],int leaderboard_size);
 
 bool load_config(char *path, size_t path_size, Configuration *config);
 
@@ -197,7 +200,7 @@ bool view_main_menu(GameState *game_state)
     case 2:
         return load_game_menu(game_state);
 
-    case 3:
+    case 4:
         return true;
 
     default:
@@ -262,7 +265,7 @@ bool load_game_menu(GameState *game_state)
         if (!valid_game)
         {
             print_err("Game file is corrupt\n");
-            return view_main_menu(game_state);
+            return new_game_menu(game_state);
         }
         
         game_state->timer_start = resume_timer(*(game_state->elapsed_time));
@@ -298,7 +301,7 @@ bool load_game_menu(GameState *game_state)
 
     if (selected_option == actual_n - 1)
     {
-        return new_game_menu(game_state);
+        return view_main_menu(game_state);
     }
     return false;
 }
