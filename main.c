@@ -262,7 +262,7 @@ bool load_game_menu(GameState *game_state)
         if (!valid_game)
         {
             print_err("Game file is corrupt\n");
-            return new_game_menu(game_state);
+            return view_main_menu(game_state);
         }
         
         game_state->timer_start = resume_timer(*(game_state->elapsed_time));
