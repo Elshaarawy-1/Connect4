@@ -14,7 +14,8 @@
 #include "config_parser.h"
 #include "save_load.h"
 #include "player_highscore.h"
-
+#include "savingplayer.h"
+#include "setleaderboard.h"
 
 bool new_game_menu(GameState *game_state);
 bool view_main_menu(GameState *game_state);
@@ -25,8 +26,6 @@ bool run_pvp_game(GameState *game_state);
 bool run_pvc_game(GameState *game_state);
 bool end_game(GameState *game_state);
 void set_save_file(GameState *game_state);
-void view_leaderboard(winning_player leaderboard[],int leaderboard_size);
-
 bool load_config(char *path, size_t path_size, Configuration *config);
 
 int main()
@@ -40,7 +39,10 @@ int main()
 
     if (!load_success)
     {
-        printf("Failed to read config too many times. Exiting...");
+        printf("Failed to read config too many times. Loading default values");
+        config->height = 9;
+        config->width = 7;
+        config->highscore = 10;
     }
 
     bool exit = false;
@@ -49,7 +51,6 @@ int main()
         GameState *game_state = malloc(sizeof(GameState));
         game_state->config = config;
         exit = view_main_menu(game_state);
-        
 
     } while (!exit);
 
@@ -75,7 +76,13 @@ bool end_game(GameState *game_state)
             char name[50];
             read_line_retry("Enter your name to save your score : ", name, 50);
             printf("%s", name);
-            // TODO: save score
+            winning_player leaderboard[250];
+            read_leaderboard(leaderboard);
+            winning_player leaderboard_entry;
+            strcpy(leaderboard_entry.name, name);
+            leaderboard_entry.score = winner->score;
+            int rank = get_winner_rank(leaderboard, leaderboard_entry);
+            printf("Your rank is %d and your high score is %d\n", rank, leaderboard_entry.score);
         }
         else
         {
@@ -197,6 +204,27 @@ bool view_main_menu(GameState *game_state)
     case 2:
         return load_game_menu(game_state);
 
+    case 3:
+    {
+        winning_player leaderboard[250];
+        bool leaderboard_valid = read_leaderboard(leaderboard);
+        if (leaderboard_valid)
+        {
+            print_leaderboard(leaderboard, game_state->config->highscore);
+        }
+        else
+        {
+            // if leaderboard isn't found, write all its scores to -1
+            for (int i = 0; i < 250; i++)
+            {
+                strcpy(leaderboard[i].name,"N/A");
+                leaderboard[i].score = -1;
+            }
+            write_leaderboard(leaderboard);
+            print_wrn("There are no scores to show\n");
+        }
+        return view_main_menu(game_state);
+    }
     case 4:
         return true;
 
@@ -212,12 +240,12 @@ bool load_game_menu(GameState *game_state)
 
     load_menu->number_of_options = 5;
     load_menu->header = "Select an option : ";
-    char * options[5];
+    char *options[5];
     for (int i = 0; i < 5; i++)
     {
         options[i] = malloc(50);
     }
-    
+
     load_menu->options = options;
     int actual_n = 0;
     for (int i = 1; i < 4; i++)
@@ -245,7 +273,6 @@ bool load_game_menu(GameState *game_state)
 
     load_menu->number_of_options = actual_n;
 
-
     int selected_option = read_selected_option(load_menu, "The index of option you want to select : ");
 
     int n_files = actual_n - 2;
@@ -263,20 +290,23 @@ bool load_game_menu(GameState *game_state)
             print_err("Game file is corrupt\n");
             return new_game_menu(game_state);
         }
-        
+
         game_state->timer_start = resume_timer(*(game_state->elapsed_time));
-        if(strcmp(load_menu->options[selected_option - 1], "1.bin") == 0){
+        if (strcmp(load_menu->options[selected_option - 1], "1.bin") == 0)
+        {
             game_state->file_id = 1;
-        }else if (strcmp(load_menu->options[selected_option - 1],"2.bin") == 0)
+        }
+        else if (strcmp(load_menu->options[selected_option - 1], "2.bin") == 0)
         {
             game_state->file_id = 2;
-        }else
+        }
+        else
         {
             game_state->file_id = 3;
         }
-        
+
         free(load_menu);
-        
+
         if (game_state->game_mode == GAME_MODE_PVC)
         {
 
@@ -304,7 +334,7 @@ bool load_game_menu(GameState *game_state)
 
 bool run_pvp_game(GameState *game_state)
 {
-    
+
     int move_type = 0;
     Stack *undo_stack = createStack(game_state->config->height * game_state->config->width);
     Stack *redo_stack = createStack(game_state->config->height * game_state->config->width);
@@ -349,7 +379,7 @@ bool start_new_game_pvp(GameState *game_state)
 
 bool run_pvc_game(GameState *game_state)
 {
-    
+
     int move_type = 0;
     Stack *undo_stack = createStack(game_state->config->height * game_state->config->width);
     Stack *redo_stack = createStack(game_state->config->height * game_state->config->width);
