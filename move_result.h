@@ -46,7 +46,7 @@ int score_calculator(GameState *game_state, int player_id, Move played_move);
 /// @return MOVE_VALID, MOVE_ENDING,MOVE_INVALID_COLUMN_FULL, MOVE_INVALID_OUT_OF_BOUNDS
 int play_move(GameState *game_state, Move *played_move);
 
-void unplay_move(GameState *game_state, Move *played_move);
+int unplay_move(GameState *game_state, Move *played_move);
 
 int row_score(GameState* game_state, int player_id, Move played_move);
 

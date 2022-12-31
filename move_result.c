@@ -13,7 +13,7 @@ int validate_move(GameState *game_state, Move *played_move)
             if (game_state->board[(i * game_state->config->width) + played_move->column] == 0)
             {
                 played_move->row = i;
-                if (game_state->total_moves+1 >= (game_state->config->height * game_state->config->width))
+                if (game_state->total_moves + 1 >= (game_state->config->height * game_state->config->width))
                 {
                     return MOVE_END;
                 }
@@ -142,6 +142,11 @@ int play_move(GameState *game_state, Move *played_move)
     move_validity = validate_move(game_state, played_move);
     if (move_validity == MOVE_VALID || move_validity == MOVE_END)
     {
+        if (played_move->column > game_state->config->width || played_move->row > game_state->config->height)
+        {
+            return MOVE_INVALID_OUT_OF_BOUNDS;
+        }
+
         played_move->total_moves++;
         Player *current_player = get_current_player(game_state);
         game_state->board[(played_move->row * game_state->config->width) + played_move->column] = current_player->id;
@@ -151,16 +156,21 @@ int play_move(GameState *game_state, Move *played_move)
     return move_validity;
 }
 
-void unplay_move(GameState *game_state, Move *played_move)
+int unplay_move(GameState *game_state, Move *played_move)
 {
     int move_validity;
     move_validity = validate_move(game_state, played_move);
+    if (played_move->column > game_state->config->width || played_move->row > game_state->config->height)
+    {
+        return MOVE_INVALID_OUT_OF_BOUNDS;
+    }
     Player *current_player = get_current_player(game_state);
     played_move->row++; // We have to add 1 because validate move get the first valid row to play in
     played_move->total_moves--;
     int score = score_calculator(game_state, current_player->id, *played_move);
     game_state->board[played_move->row * game_state->config->width + played_move->column] = 0;
     current_player->score -= score;
+    return move_validity;
 }
 
 void get_valid_columns(Configuration config, int *board, int valid_columns[], int *size)

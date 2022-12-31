@@ -15,7 +15,12 @@ bool undo_game(GameState *game_state, struct Stack *undostack, struct Stack *red
     {
         change_turn(game_state); // get the previous move's player
         Player *current_player = get_current_player(game_state);
-        unplay_move(game_state, &played_move);
+        int move_validity = unplay_move(game_state, &played_move);
+        if (move_validity == MOVE_INVALID_COLUMN_FULL || move_validity == MOVE_INVALID_OUT_OF_BOUNDS)
+        {
+            return false;
+        }
+
         get_elapsed_time(game_state->timer_start, game_state->elapsed_time);
         game_state->total_moves--;
         current_player->number_of_moves--;
@@ -37,7 +42,11 @@ bool redo_game(GameState *game_state, Stack *undostack, struct Stack *redostack)
     else
     {
         Player *current_player = get_current_player(game_state);
-        play_move(game_state, &played_move);
+        int move_validity = play_move(game_state, &played_move);
+        if (move_validity == MOVE_INVALID_COLUMN_FULL || move_validity == MOVE_INVALID_OUT_OF_BOUNDS)
+        {
+            return false;
+        }
         change_turn(game_state);
         get_elapsed_time(game_state->timer_start, game_state->elapsed_time);
         game_state->total_moves++;
