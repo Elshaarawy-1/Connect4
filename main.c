@@ -290,7 +290,6 @@ bool load_game_menu(GameState *game_state)
             return run_pvp_game(game_state);
         }
     }
-    free(load_menu->options);
     free(load_menu);
     if (selected_option == actual_n)
     {
@@ -325,6 +324,12 @@ bool run_pvp_game(GameState *game_state)
             redo_stack = createStack(game_state->config->height * game_state->config->width);
         }
 
+        if (move_type == MOVE_VALID || move_type == MOVE_UNDO || move_type == MOVE_REDO)
+        {
+            char file_name[10];
+            sprintf(file_name, "%d.bin", game_state->file_id);
+            write_data(file_name, game_state);
+        }
     } while (move_type != MOVE_END);
     return false;
 }
