@@ -43,7 +43,7 @@ bool read_line(char *prompt, char *buff, size_t size)
 
     // Otherwise remove newline and give string back to caller.
     buff[strlen(buff) - 1] = '\0';
-    buff = trim_whitespace(buff);
+    buff = strstrip(buff);
     return true;
 }
 
@@ -305,4 +305,19 @@ int read_board_input(char *prompt_message, Configuration *config)
     // if the supplied option index isn't in the valid range, prompt the user again
     printf("\n[ERR] Input is invalid, the selected option is outside of the valid range\n");
     return read_board_input(prompt_message, config);
+}
+
+void print_leaderboard(winning_player leaderboard[], int leaderboard_size)
+{
+    printf("  %20s\t%5s\n","Name", "Score" );
+    for (int i = 0; i < leaderboard_size; i++)
+    {
+        if (leaderboard[i].score != -1)
+        {
+            printf("%d.%20s\t%5d\n",i+1, leaderboard[i].name,leaderboard[i].score);
+        }
+    }
+    
+    printf("Press ENTER key to return to main menu\n");  
+    getchar();    
 }

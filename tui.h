@@ -7,6 +7,7 @@
 #include "player.h"
 #include "configuration.h"
 #include "game_state.h"
+#include "player_highscore.h"
 
 #define INTERSECTION "╬"
 #define HORIZONTAL_LINE "═══"
@@ -80,5 +81,8 @@ void print_score(Player *player);
 void print_game_state(GameState game_state);
 
 int read_board_input(char* prompt_message,Configuration * config);
+
+
+void print_leaderboard(winning_player leaderboard[], int leaderboard_size);
 
 #endif
