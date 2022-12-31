@@ -1,6 +1,6 @@
 #include "savingplayer.h"
 
-bool write_data(winning_player arr[])
+bool write_leaderboard(winning_player arr[])
 {
     FILE *file;
     file = fopen("Leader_board.bin", "wb");
@@ -11,7 +11,7 @@ bool write_data(winning_player arr[])
 }
 
 
-bool read_data(winning_player arr[])
+bool read_leaderboard(winning_player arr[])
 {
     FILE *file;
     file = fopen("Leader_board.bin", "rb");

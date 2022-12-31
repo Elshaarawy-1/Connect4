@@ -1,5 +1,5 @@
 #include "setleaderboard.h"
-
+#include <string.h>
 
 
 
@@ -58,6 +58,6 @@ int get_winner_rank(winning_player leader_board[], winning_player player)
     rank = add_player_score(leader_board, player);
     bubbleSort(leader_board);
     rank = add_player_score(leader_board, player);
-    write_data(leader_board);
+    write_leaderboard(leader_board);
     return rank;
 }
