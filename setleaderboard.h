@@ -1,7 +1,7 @@
 #ifndef SET_LEADERBOARD_H
 #define SET_LEADERBOARD_H
 #include <stdbool.h>
-#include "PlayerHighScore.h"
+#include "player_highscore.h"
 #include "savingplayer.h"
 void bubbleSort(winning_player leader_board[]);
 
