@@ -3,20 +3,18 @@
 #include <string.h>
 #include "tui.h"
 #include "color.h"
+#include "helpers.h"
 
 bool read_int(char *prompt_message, int *answer)
 {
-    printf("%s", prompt_message);
-    int numberOfInputs = scanf("%d", answer);
-    // Consume bad input.
-    while (fgetc(stdin) != '\n')
-        ;
-
-    if (numberOfInputs != 1)
+    char buffer[50];
+    bool valid_input = read_line(prompt_message,buffer,50);
+    if (!valid_input)
     {
         return false;
     }
-    return true;
+    
+    return str_to_int(buffer,answer);
 }
 
 bool read_line(char *prompt, char *buff, size_t size)
@@ -45,6 +43,7 @@ bool read_line(char *prompt, char *buff, size_t size)
 
     // Otherwise remove newline and give string back to caller.
     buff[strlen(buff) - 1] = '\0';
+    buff = trim_whitespace(buff);
     return true;
 }
 
@@ -54,7 +53,7 @@ void read_line_retry(char *prompt, char *buff, size_t size)
     if (!success)
     {
         char err_msg[100];
-        sprintf(err_msg, "Input is invalid. Make sure input size is at most %lu.\n", size);
+        sprintf(err_msg, "Input is invalid. Make sure input size is between 1 and %lu.\n", size);
         print_err(err_msg);
         read_line_retry(prompt, buff, size);
     }
