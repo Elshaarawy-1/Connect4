@@ -12,9 +12,10 @@ void bubbleSort(winning_player leader_board[])
         {
             if (leader_board[j].score > leader_board[j-1].score) 
             {
-                leader_board[j].score = leader_board[j].score ^ leader_board[j-1].score;
-                leader_board[j-1].score = leader_board[j].score ^ leader_board[j-1].score;
-                leader_board[j].score = leader_board[j].score ^ leader_board[j-1].score;
+                winning_player temp;
+                temp = leader_board[j];
+                leader_board[j] = leader_board[j-1];
+                leader_board[j-1] = temp;
                 is_sorted = false;
             }
         }
@@ -33,7 +34,7 @@ int add_player_score(winning_player leader_board[], winning_player player)
             leader_board[i] = player;
             return i+1;
         }
-        if (leader_board[i].name == player.name)
+        if (strcmp(leader_board[i].name, player.name) == 0)
         {
             if (player.score > leader_board[i].score)
             {
@@ -55,15 +56,8 @@ int get_winner_rank(winning_player leader_board[], winning_player player)
 {
     int rank;
     rank = add_player_score(leader_board, player);
+    bubbleSort(leader_board);
+    rank = add_player_score(leader_board, player);
     write_data(leader_board);
-    if (rank == 250)
-    {
-        return rank;
-    }
-    else
-    {
-        bubbleSort(leader_board);
-        rank = add_player_score(leader_board, player);
-        return rank;
-    }
+    return rank;
 }
