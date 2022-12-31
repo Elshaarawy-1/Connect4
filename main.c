@@ -77,6 +77,12 @@ bool end_game(GameState *game_state)
             read_line_retry("Enter your name to save your score : ", name, 50);
             // printf("%s", name);
             winning_player leaderboard[250];
+            for (int i = 0; i < 250; i++)
+            {
+                // strcpy(leaderboard[i].name,"N/A");
+                leaderboard[i].score = -1;
+            }
+
             read_leaderboard(leaderboard);
             winning_player leaderboard_entry;
             strcpy(leaderboard_entry.name, name);
